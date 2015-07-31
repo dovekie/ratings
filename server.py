@@ -163,12 +163,51 @@ def movie_details(movie_id):
         if user:
             prediction = user.predict_rating(movie)
 
+    if prediction:
+        effective_rating = prediction
+    elif user_rating:
+        effective_rating = user_rating.score
+    else:
+        effective_rating = None
+
+    the_eye = User.query.get(946)
+
+    eye_rating = Rating.query.filter_by(
+                user_id=the_eye.user_id, movie_id=movie.movie_id).first()
+
+    if eye_rating is None:
+        eye_rating = the_eye.predict_rating(movie)
+    else:
+        eye_rating = eye_rating.score
+
+    if eye_rating and effective_rating:
+        difference = abs(eye_rating - effective_rating)
+    else:
+        difference = None
+
+    BERATEMENT_MESSAGES = [
+        "I suppose you don't have such bad taste after all.",
+        "I regret every decision that I've ever made that has brought me" +
+            " to listen to your opinion.",
+        "Words fail me, as your taste in movies has clearly failed you.",
+        "That movie is great. For a clown to watch. Idiot.",
+        "Words cannot express the awfulness of your taste."
+    ]
+
+    if difference is not None:
+        beratement = BERATEMENT_MESSAGES[int(difference)]
+    else:
+        beratement = None
+
+
     return render_template("movie_details.html",
                             movie_id=movie_id, 
                             movie_title=movie_title, 
                             movie_date=movie_date, 
                             ratings=ratings,
-                            prediction=prediction)
+                            prediction=prediction,
+                            user_rating=user_rating,
+                            insult=beratement)
 
 
 @app.route("/rate/<int:id>", methods=["POST"])

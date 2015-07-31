@@ -12,9 +12,14 @@
             <input type="submit" value="rate">
         </label>
     </form>
-
-        {% if prediction %}
+        {% if user_rating %}
+            <p>You rated this movie {{ user_rating.score }}!</p>
+        {% elif prediction %}
             <p>We predict you will give this movie a {{ prediction }}!</p>
+        {% endif %}
+
+        {% if insult %}
+            <p>{{insult}}</p>
         {% endif %}
 
     {% endif %}
